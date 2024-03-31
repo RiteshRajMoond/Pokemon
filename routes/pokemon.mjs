@@ -15,6 +15,8 @@ router.get("/poke/region/:pokemonRegion", pokeController.getPokemonByRegion);
 
 router.post("/auth/signup", authController.signup);
 
+router.post("/auth/signin", authController.signin);
+
 router.get("/", pokeController.getHome);
 
 export default router;
