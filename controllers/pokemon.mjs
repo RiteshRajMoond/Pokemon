@@ -50,28 +50,27 @@ export const getPokemonByRegion = async (req, res, next) => {
   const region = pokemonRegion.toLowerCase();
 
   const regionToGeneration = {
-    'kanto': 'generation-i',
-    'johto': 'generation-ii',
-    'hoenn': 'generation-iii',
-    'sinnoh': 'generation-iv',
-    'unova': 'generation-v',
-    'kalos': 'generation-vi',
-    'alola': 'generation-vii',
-    'galar': 'generation-viii'
+    kanto: "generation-i",
+    johto: "generation-ii",
+    hoenn: "generation-iii",
+    sinnoh: "generation-iv",
+    unova: "generation-v",
+    kalos: "generation-vi",
+    alola: "generation-vii",
+    galar: "generation-viii",
   };
 
-  pokemonRegion = regionToGeneration[region];  
+  pokemonRegion = regionToGeneration[region];
 
   P.getGenerationByName(pokemonRegion)
-    .then(resp => {
-      const {pokemon_species} = resp;
-      return res.status(200).json({pokemon_species});
+    .then((resp) => {
+      const { pokemon_species } = resp;
+      return res.status(200).json({ pokemon_species });
     })
-    .catch(err => {
+    .catch((err) => {
       console.log(err);
       return res.status(404).json("error in the getPokemonByRegion");
-    })
+    });
 };
 
-
-// replace then/catch block with async await (Will be done after studing pagination and error handling) 
+// replace then/catch block with async await (Will be done after validation studing pagination and error handling)
