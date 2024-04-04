@@ -27,7 +27,9 @@ router.post(
           return Promise.reject("Email already exists");
         }
       })
-      .normalizeEmail(),
+      .normalizeEmail()
+      .trim()
+      .escape(),
     body(
       "password",
       "Password must contain at least one uppercase letter, one lowercase letter, and one special character."
@@ -37,7 +39,9 @@ router.post(
         return /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,}$/.test(
           value
         );
-      }),
+      })
+      .trim()
+      .escape(),
   ],
   authController.signup
 );
@@ -48,11 +52,15 @@ router.post(
     body("email")
       .isEmail()
       .withMessage("Please Enter a valid email")
-      .normalizeEmail(),
+      .normalizeEmail()
+      .trim()
+      .escape(),
     body("password", "Password must be valid")
       .notEmpty()
       .isLength({ min: 8 })
-      .withMessage("Password must be at least 8 characters long"),
+      .withMessage("Password must be at least 8 characters long")
+      .trim()
+      .escape(),
   ],
   authController.signin
 );
