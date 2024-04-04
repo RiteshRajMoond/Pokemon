@@ -21,12 +21,11 @@ router.post(
     body("email")
       .isEmail()
       .withMessage("Please Enter a valid email")
-      .custom((email, { req }) => {
-        return User.findOne({ email: email }).then((userDoc) => {
-          if (userDoc) {
-            return Promise.reject("Email already exists");
-          }
-        });
+      .custom(async (email, { req }) => {
+        const userDoc = await User.findOne({ email: email });
+        if (userDoc) {
+          return Promise.reject("Email already exists");
+        }
       })
       .normalizeEmail(),
     body(
@@ -43,7 +42,20 @@ router.post(
   authController.signup
 );
 
-router.post("/auth/signin", authController.signin);
+router.post(
+  "/auth/signin",
+  [
+    body("email")
+      .isEmail()
+      .withMessage("Please Enter a valid email")
+      .normalizeEmail(),
+    body("password", "Password must be valid")
+      .notEmpty()
+      .isLength({ min: 8 })
+      .withMessage("Password must be at least 8 characters long"),
+  ],
+  authController.signin
+);
 
 router.get("/", pokeController.getHome);
 
