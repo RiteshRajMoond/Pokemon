@@ -15,7 +15,11 @@ export const signup = (req, res, next) => {
   const result = validationResult(req);
 
   if (!result.isEmpty()) {
-    return res.status(404).json({ err: result });
+    const error = new Error("Validation failed");
+    error.statusCode = 422;
+    error.auth = true;
+    // error.data = result.array();
+    throw error;
   }
 
   const { email, password } = req.body;
@@ -29,8 +33,7 @@ export const signup = (req, res, next) => {
       return res.status(201).json("New User created!");
     })
     .catch((err) => {
-      // console.log(err)
-      return res.status(404).json("Error: ", err);
+      next(err);
     });
 };
 
@@ -40,14 +43,18 @@ export const signin = (req, res, next) => {
   User.findOne({ email: email })
     .then((user) => {
       if (!user) {
-        return res.status(404).json("User not found");
+        const error = new Error("User not found");
+        error.auth = true;
+        throw error;
       }
       loadedUser = user;
       return bcrypt.compare(password, loadedUser.password);
     })
     .then((equals) => {
       if (!equals) {
-        return res.status(401).json("Wrong Password");
+        const error = new Error("Wrong password");
+        error.auth = true;
+        throw error;
       }
       const token = jwt.sign(
         {
@@ -62,7 +69,6 @@ export const signin = (req, res, next) => {
       return res.status(200).json({ token: token });
     })
     .catch((err) => {
-      console.log(err);
-      return res.status(500).json("Error");
+      next(err);
     });
 };
