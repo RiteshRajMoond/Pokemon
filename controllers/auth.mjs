@@ -16,9 +16,9 @@ export const signup = (req, res, next) => {
 
   if (!result.isEmpty()) {
     const error = new Error("Validation failed");
-    error.statusCode = 422;
+    error.status = 422;
     error.auth = true;
-    // error.data = result.array();
+    error.data = result.array().map(err => err.msg);
     throw error;
   }
 
@@ -38,6 +38,16 @@ export const signup = (req, res, next) => {
 };
 
 export const signin = (req, res, next) => {
+
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const error = new Error("Validation failed");
+    error.status = 422;
+    error.auth = true;
+    error.data = errors.array().map(err => err.msg);
+    throw error;
+  }
+
   const { email, password } = req.body;
   let loadedUser;
   User.findOne({ email: email })
