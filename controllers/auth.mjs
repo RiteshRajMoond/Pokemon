@@ -11,74 +11,67 @@ mongoose.connect(
   `mongodb+srv://${process.env.MONGO_USER_NAME}:${process.env.MONGO_PASSWORD}@cluster0.hodiq1h.mongodb.net/pokemon?retryWrites=true&w=majority`
 );
 
-export const signup = (req, res, next) => {
-  const result = validationResult(req);
+export const signup = async (req, res, next) => {
+  try {
+    const result = validationResult(req);
 
-  if (!result.isEmpty()) {
-    const error = new Error("Validation failed");
-    error.status = 422;
-    error.auth = true;
-    error.data = result.array().map(err => err.msg);
-    throw error;
-  }
+    if (!result.isEmpty()) {
+      const error = new Error("Validation failed");
+      error.status = 422;
+      error.data = result.array().map((err) => err.msg);
+      throw error;
+    }
 
-  const { email, password } = req.body;
-  bcrypt
-    .hash(password, 10)
-    .then((hashedPw) => {
-      const user = new User({ email: email, password: hashedPw });
-      return user.save();
-    })
-    .then((resp) => {
-      return res.status(201).json("New User created!");
-    })
-    .catch((err) => {
-      next(err);
+    const { email, password } = req.body;
+    const hashedPw = bcrypt.hashSync(password, 10);
+    const user = new User({
+      email: email,
+      password: hashedPw,
     });
+    await user.save();
+    return res.status(201).json({ message: "User created" });
+  } catch (err) {
+    next(err);
+  }
 };
 
-export const signin = (req, res, next) => {
+export const signin = async (req, res, next) => {
+  try {
+    const result = validationResult(req);
+    if (!result.isEmpty()) {
+      const error = new Error("Validation failed");
+      error.status = 422;
+      error.data = result.array().map((err) => err.msg);
+      throw error;
+    }
 
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    const error = new Error("Validation failed");
-    error.status = 422;
-    error.auth = true;
-    error.data = errors.array().map(err => err.msg);
-    throw error;
+    const { email, password } = req.body;
+    const user = await User.findOne({ email: email });
+
+    if (!user) {
+      const error = new Error("User not found");
+      error.status = 404;
+      error.auth = true;
+      throw error;
+    }
+
+    const equals = await bcrypt.compare(password, user.password);
+
+    if (!equals) {
+      const error = new Error("Password is incorrect");
+      error.status = 401;
+      error.auth = true;
+      throw error;
+    }
+
+    const token = jwt.sign(
+      { email: user.email, userId: user._id.toString() },
+      process.env.JWT_SECRET_KEY,
+      { expiresIn: "1h" }
+    );
+
+    return res.status(200).json({ token: token, userId: user._id.toString() });
+  } catch (err) {
+    next(err);
   }
-
-  const { email, password } = req.body;
-  let loadedUser;
-  User.findOne({ email: email })
-    .then((user) => {
-      if (!user) {
-        const error = new Error("User not found");
-        error.auth = true;
-        throw error;
-      }
-      loadedUser = user;
-      return bcrypt.compare(password, loadedUser.password);
-    })
-    .then((equals) => {
-      if (!equals) {
-        const error = new Error("Wrong password");
-        error.auth = true;
-        throw error;
-      }
-      const token = jwt.sign(
-        {
-          email: loadedUser.email,
-          userId: loadedUser._id.toString(),
-        },
-        process.env.JWT_SECRET_KEY,
-        {
-          expiresIn: "2hr",
-        }
-      );
-      return res.status(200).json({ token: token });
-    })
-    .catch((err) => {
-      next(err);
-    });
 };
