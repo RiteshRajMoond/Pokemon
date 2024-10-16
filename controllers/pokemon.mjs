@@ -105,3 +105,8 @@ export const getPokemonByRegion = async (req, res, next) => {
     next(error);
   }
 };
+
+export const getFavouritePlayerByCountry = async (req, res, next) => {
+  const { country } = req.params;
+  
+}

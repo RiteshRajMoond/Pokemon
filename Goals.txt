@@ -1,0 +1,19 @@
+// BACKEND PART
+
+Expand your Search Feature: Currently, you have implemented searching by name. You can expand this to include searching by type, abilities, and other attributes. This will make your Pokédex more versatile.
+(Done for now!) Will work om it more later. 
+
+Authorisation: 
+(Done for now!) {It is very basic till now}
+
+Validation and Sanitization (done for both signin and signup)
+
+Implement Pagination: The PokeAPI returns a lot of data. To make it manageable, you can implement pagination on your backend. This means you’ll only fetch a certain number of Pokémon at a time, which can improve performance. ("pokedex-promise-v2" does not support pagination.) So it's solution is using cache
+
+Error Handling: Make sure to handle potential errors in your requests to the PokeAPI. This could include rate limiting, timeouts, or Pokémon not found. (Done)
+
+Caching: To reduce the number of requests to the PokeAPI and speed up your app, you can implement caching. This means you’ll store the results of a request and reuse them if the same request is made again. (Done at the basic level)
+
+Add reset password page too (Will Do later)
+
+// FRONTEND PART
